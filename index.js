@@ -7,24 +7,27 @@ const PORT = process.env.PORT || 8000;
 const server = http.createServer();
 const io = new Server(server, {
     cors: {
-        origin: 'http://localhost:3000'
+        origin: '*'
     }
 });
 
 io.on("connection", (socket) => {
     socket.on('join', ({ name, room }) => {
-        const { error, user, size } = addUser(
-            { id: socket.id, name, room });
+        const { error, user, size } = addUser({ id: socket.id, name, room });
         
         if (error) console.log(error);
 
         socket.emit('message', { user: user.name, size });
- 
-        socket.broadcast.to(user.room).emit('message', { user: user.name, size });
- 
-        socket.join(user.room);
- 
-        io.to(user.room).emit('roomData', { room: user.room, users: getUsersInRoom(user.room) });
+
+        socket.broadcast.to(room).emit('message', { user: user.name, size });
+        
+        socket.join(room);
+        
+        // io.emit('roomData', { room: user.room, users: getUsersInRoom(user.room) });
+
+        socket.on('game-move', (data) => {
+            socket.to(room).emit('game-move', { event: data });
+        });
     });
  
     socket.on('sendMessage', (message) => {
@@ -35,37 +38,19 @@ io.on("connection", (socket) => {
     });
  
     socket.on('remove_user', () => {
-        console.log('inside remove socket: ', socket.id);
         const user = removeUser(socket.id);
         if (user) {
             io.to(user.room).emit('removed', { user: 'admin', text: `${user.name} had left` });
         }
     });
 
-    socket.on('game-move', (data) => {
-        socket.emit('game-move', { event: data })
-    });
-
 });
+
+
+
 
 server.listen(PORT, () => {
     console.log(`Listening on port: ${PORT}`);
 });
 
-
-
-
-// io.on("connection", (socket) => {
-//     socket.on("join_game", (data) => {
-//         const { username, room } = data;
-//         socket.join(room);
-//         console.log(username);
-//         socket.to(data.room).emit('send_message', 
-//         {
-//             size: io.sockets.adapter.rooms.get(data.room).size,
-//             name: username
-//         });
-//         // console.log(io.sockets.adapter.rooms.get(room).size, 'here');
-//     });
-    
-// });
+// console.log(io.sockets.adapter.rooms.get(room));

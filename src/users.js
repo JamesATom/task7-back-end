@@ -15,7 +15,7 @@ export const addUser = ({id, name, room}) => {
 	
 	if (users.length < 2) 
 		users.push(user);
-	console.log('Users array: ', users);
+	
 	return { user, size: users.length };
 }
 
@@ -24,8 +24,7 @@ export const removeUser = (id) => {
 	if(index !== -1) users.splice(index,1)[0];
 }
 
-export const getUser = (id) => users
-		.find((user) => user.id === id);
+export const getUser = (id) => users.find((user) => user.id === id);
 
 export const getUsersInRoom = (room) => users.filter((user) => user.room === room);
 
