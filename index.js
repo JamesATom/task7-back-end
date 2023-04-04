@@ -19,7 +19,7 @@ io.on("connection", (socket) => {
 
         socket.emit('message', { user: user.name, size });
 
-        socket.broadcast.to(room).emit('message', { user: user.name, size });
+        // socket.broadcast.to(room).emit('message', { user: user.name, size });
         
         socket.join(room);
         
